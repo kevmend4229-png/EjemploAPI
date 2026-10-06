@@ -1,12 +1,15 @@
 package com.permuta.ejemplo_mapper.djinn.service;
 
 import com.permuta.ejemplo_mapper.djinn.dto.NewDjinnRequest;
+import com.permuta.ejemplo_mapper.djinn.exception.DjinnNotFoundException;
 import com.permuta.ejemplo_mapper.djinn.dto.DjinnResponse;
 import com.permuta.ejemplo_mapper.djinn.mapper.DjinnMapper;
 import com.permuta.ejemplo_mapper.djinn.model.Djinn;
 import com.permuta.ejemplo_mapper.djinn.model.DjinnState;
 import com.permuta.ejemplo_mapper.djinn.repository.DjinnRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.el.stream.Optional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +29,16 @@ public class DjinnService {
     public DjinnResponse create(NewDjinnRequest request) {
         Djinn djinn = mapper.toEntity(request, DjinnState.SET, LocalDateTime.now());
         return mapper.toResponse(repository.save(djinn));
+    }
+
+    public DjinnResponse get(long id) {
+        var djinn = repository.get(id);
+
+        if (djinn.isEmpty()) {
+            throw new DjinnNotFoundException(id);
+        }
+
+        return mapper.toResponse(djinn.get());
     }
 
     // ---------------------------------------------------------------------
